@@ -1,0 +1,49 @@
+{
+    "type" : "SUCCESS",
+    "msg" : "Container loan-application_1.1.0 successfully called.",
+    "result" : {
+      "execution-results" : {
+        "results" : [ {
+          "value" : {"com.redhat.demos.dm.loan.model.Loan":{
+    "amount" : 2500,
+    "duration" : 24,
+    "interestRate" : 1.5,
+    "approved" : false,
+    "reason" : "Your credit score is too low for a loan."
+  }},
+          "key" : "loan"
+        }, {
+          "value" : [{"com.redhat.demos.dm.loan.model.Applicant":{
+    "name" : "Howard Grant",
+    "creditScore" : 120
+  }},{"com.redhat.demos.dm.loan.model.Loan":{
+    "amount" : 2500,
+    "duration" : 24,
+    "interestRate" : 1.5,
+    "approved" : false,
+    "reason" : "Your credit score is too low for a loan."
+  }},{"com.redhat.demos.dm.loan.model.Recommendation":{
+    "text" : "Please add an extra guarantee and apply again"
+  }}],
+          "key" : "objects"
+        }, {
+          "value" : {"com.redhat.demos.dm.loan.model.Applicant":{
+    "name" : "Howard Grant",
+    "creditScore" : 120
+  }},
+          "key" : "applicant"
+        } ],
+        "facts" : [ {
+          "value" : {"org.drools.core.common.DefaultFactHandle":{
+    "external-form" : "0:2:771405007:771405007:2:DEFAULT:NON_TRAIT:com.redhat.demos.dm.loan.model.Loan"
+  }},
+          "key" : "loan"
+        }, {
+          "value" : {"org.drools.core.common.DefaultFactHandle":{
+    "external-form" : "0:1:814131203:814131203:1:DEFAULT:NON_TRAIT:com.redhat.demos.dm.loan.model.Applicant"
+  }},
+          "key" : "applicant"
+        } ]
+      }
+    }
+  }

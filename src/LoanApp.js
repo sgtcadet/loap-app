@@ -1,4 +1,5 @@
 import React from 'react';
+import LoanData from './LoanData';
 
 class LoanApp extends React.Component {
 
@@ -10,7 +11,12 @@ class LoanApp extends React.Component {
             loanAmount: 0,
             approved: false,    // hard coded
             duration: 24,       // hard coded
-            interestRate: 1.5   // hard coded
+            interestRate: 1.5,  // hard coded
+            responseBody: null,
+            applicant: null,        // for applicant object | response set
+            loan: null,             // for loan object | response set
+            recommendation: null,   // for recommendation object | response set
+            showData: false
         };
     
         //this.handleChange = this.handleChange.bind(this);
@@ -31,46 +37,132 @@ class LoanApp extends React.Component {
     handleSubmit(event) {
         //alert('A name was submitted: ' + this.state.value);
         event.preventDefault();
+        
+        var payload = {
+            lookup: 'default-stateless-ksession',
+            commands: [
+              {
+                insert: {
+                  object: {
+                    'com.redhat.demos.dm.loan.model.Applicant': {
+                      creditScore: this.state.creditScore,
+                      name: this.state.name
+                    }
+                  },
+                  'out-identifier': 'applicant'
+                }
+              },
+              {
+                insert: {
+                  object: {
+                    'com.redhat.demos.dm.loan.model.Loan': {
+                      //amount: 2500,
+                      amount: this.state.loanAmount,
+                      approved: false,
+                      duration: 24,
+                      interestRate: 1.5
+                    }
+                  },
+                  'out-identifier': 'loan'
+                }
+              },
+              {
+                'fire-all-rules': {}
+              },
+              {
+                'get-objects': {
+                  'out-identifier': 'objects'
+                }
+              },
+              {
+                dispose: {}
+              }
+            ]
+        }
 
         // api endpoint call
-        fetch('https://mywebsite.com/endpoint/', {
+       fetch('http://localhost:8080/kie-server/services/rest/server/containers/instances/loan-application_1.1.0', {
             method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
+                'Authorization': 'Basic cGFtQWRtaW46cmVkaGF0cGFtMSE=',
             },
-            body: JSON.stringify({
-                firstParam: 'yourValue',
-                secondParam: 'yourOtherValue',
-            }),
-        });
+            body: JSON.stringify(payload),
+            //body: JSON.stringify('{"lookup": "default-stateless-ksession","commands": [{"insert": {"object": {"com.redhat.demos.dm.loan.model.Applicant": {"creditScore": 120,"name": "Howard Grant"}},"out-identifier": "applicant"}},{"insert": {"object": {"com.redhat.demos.dm.loan.model.Loan": {"amount": 2500,"approved": false,"duration": 24,"interestRate": 1.5}},"out-identifier": "loan"},{"fire-all-rules": {}},{"get-objects": {"out-identifier": "objects"}},{"dispose": {}}]}'),
+        })
+        .then(response => response.json())
+        //.then( function(response){return response.json()})
+        //.then(data => this.setState({ responseBody: data}, console.log(data.result["execution-results"]))) //.results
+        // .then(data => this.setState(function(state,props){
+        //     //let rec = data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"];
+        //     let recom = null;
+        //     if(typeof(data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"]) != undefined){
+        //         recom = data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"];
+        //     }
+        //     return{
+        //             applicant: data.result["execution-results"].results[1].value[0]["com.redhat.demos.dm.loan.model.Applicant"],
+        //             loan:  data.result["execution-results"].results[1].value[1]["com.redhat.demos.dm.loan.model.Loan"],
+        //             recommendation:  recom,
+        //     }
+        // })) // rem
+        .then(data => this.setState({ 
+            applicant: data.result["execution-results"].results[1].value[0]["com.redhat.demos.dm.loan.model.Applicant"],
+            loan:  data.result["execution-results"].results[1].value[1]["com.redhat.demos.dm.loan.model.Loan"],
+            // TODO add code to handle recommendations | commented out to resolve 'cannot read undefined issue'
+            //recommendation:  data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"],
+            showData:true,
+        },console.log(data)));
     }
 
     render() {
+    const data = this.state;
+    const showData = this.state.showData;
+    const name = 'HSA';
+    // if(dataset !== null){
+    //     name = dataset.applicant.name
+    // }
+    
       return (
-        <form onSubmit={this.handleSubmit}>
-            <div className="form-group">
-                <label>
-                Name:
-                <input type="text" className="form-control" name="name" value={this.state.name} onChange={this.handleInputChange} />
-                </label>
+        <div className="App container">
+            <div className="row">
+                <div className="col-md-6">
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="form-group">
+                            <label>
+                            Name:
+                            <input type="text" className="form-control" name="name" value={this.state.name} onChange={this.handleInputChange} />
+                            </label>
+                        </div>
+                        <div className="form-group">
+                            <label>
+                                Credit Score:
+                                <input type="text" className="form-control" name="creditScore" value={this.state.creditScore} onChange={this.handleInputChange}/>
+                            </label>
+                        </div>
+                        <div className="form-group">
+                            <label>
+                                Loan Amount:
+                                <input type="text" className="form-control" name="loanAmount" value={this.state.loanAmount} onChange={this.handleInputChange}/>
+                            </label>
+                        </div>
+                        <div className="form-group">
+                            <input type="submit" className="btn btn-primary" value="Submit" />
+                        </div>
+                    </form>
+                </div>
+                <div className="col-md-6">
+                    <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">Loan</h5>
+                    </div>
+                    {showData ? (
+                        <LoanData data={data}/>
+                    ): <span></span>}
+                </div>
             </div>
-            <div className="form-group">
-                <label>
-                    Credit Score:
-                    <input type="text" className="form-control" name="creditScore" value={this.state.creditScore} onChange={this.handleInputChange}/>
-                </label>
-            </div>
-            <div className="form-group">
-                <label>
-                    Loan Amount:
-                    <input type="text" className="form-control" name="loanAmount" value={this.state.loanAmount} onChange={this.handleInputChange}/>
-                </label>
-            </div>
-            <div className="form-group">
-                <input type="submit" className="btn btn-primary" value="Submit" />
-            </div>
-      </form>
+        </div>
       );
     }
 }
