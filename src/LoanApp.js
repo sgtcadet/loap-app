@@ -97,7 +97,7 @@ class LoanApp extends React.Component {
         .then( function(response){return response.json()})
         .then(data => this.setState(function(state,props){
             let recom = null; // for recommendation
-            if(data.result["execution-results"].results[1].value.length == 3 ){
+            if(data.result["execution-results"].results[1].value.length === 3 ){
                 recom = data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"];
             }
             return{
