@@ -9,10 +9,10 @@ class LoanApp extends React.Component {
             name: '',
             creditScore: 0,
             loanAmount: 0,
-            approved: false,    // hard coded
-            duration: 24,       // hard coded
-            interestRate: 1.5,  // hard coded
-            responseBody: null,
+            approved: false,        // hard coded
+            duration: 24,           // hard coded
+            interestRate: 1.5,      // hard coded
+            responseBody: null,     // deprecated
             applicant: null,        // for applicant object | response set
             loan: null,             // for loan object | response set
             recommendation: null,   // for recommendation object | response set
@@ -93,38 +93,33 @@ class LoanApp extends React.Component {
             body: JSON.stringify(payload),
             //body: JSON.stringify('{"lookup": "default-stateless-ksession","commands": [{"insert": {"object": {"com.redhat.demos.dm.loan.model.Applicant": {"creditScore": 120,"name": "Howard Grant"}},"out-identifier": "applicant"}},{"insert": {"object": {"com.redhat.demos.dm.loan.model.Loan": {"amount": 2500,"approved": false,"duration": 24,"interestRate": 1.5}},"out-identifier": "loan"},{"fire-all-rules": {}},{"get-objects": {"out-identifier": "objects"}},{"dispose": {}}]}'),
         })
-        .then(response => response.json())
-        //.then( function(response){return response.json()})
-        //.then(data => this.setState({ responseBody: data}, console.log(data.result["execution-results"]))) //.results
-        // .then(data => this.setState(function(state,props){
-        //     //let rec = data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"];
-        //     let recom = null;
-        //     if(typeof(data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"]) != undefined){
-        //         recom = data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"];
-        //     }
-        //     return{
-        //             applicant: data.result["execution-results"].results[1].value[0]["com.redhat.demos.dm.loan.model.Applicant"],
-        //             loan:  data.result["execution-results"].results[1].value[1]["com.redhat.demos.dm.loan.model.Loan"],
-        //             recommendation:  recom,
-        //     }
-        // })) // rem
-        .then(data => this.setState({ 
-            applicant: data.result["execution-results"].results[1].value[0]["com.redhat.demos.dm.loan.model.Applicant"],
-            loan:  data.result["execution-results"].results[1].value[1]["com.redhat.demos.dm.loan.model.Loan"],
-            // TODO add code to handle recommendations | commented out to resolve 'cannot read undefined issue'
-            //recommendation:  data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"],
-            showData:true,
+        //.then(response => response.json())
+        .then( function(response){return response.json()})
+        .then(data => this.setState(function(state,props){
+            let recom = null; // for recommendation
+            if(data.result["execution-results"].results[1].value.length == 3 ){
+                recom = data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"];
+            }
+            return{
+                    applicant: data.result["execution-results"].results[1].value[0]["com.redhat.demos.dm.loan.model.Applicant"],
+                    loan:  data.result["execution-results"].results[1].value[1]["com.redhat.demos.dm.loan.model.Loan"],
+                    recommendation:  recom,
+                    showData: true,
+            }
         },console.log(data)));
+        // .then(data => this.setState({ 
+        //     applicant: data.result["execution-results"].results[1].value[0]["com.redhat.demos.dm.loan.model.Applicant"],
+        //     loan:  data.result["execution-results"].results[1].value[1]["com.redhat.demos.dm.loan.model.Loan"],
+        //     // TODO add code to handle recommendations | commented out to resolve 'cannot read undefined issue'
+        //     //recommendation:  data.result["execution-results"].results[1].value[2]["com.redhat.demos.dm.loan.model.Recommendation"],
+        //     showData:true,
+        // },console.log(data)));
     }
 
     render() {
     const data = this.state;
     const showData = this.state.showData;
-    const name = 'HSA';
-    // if(dataset !== null){
-    //     name = dataset.applicant.name
-    // }
-    
+
       return (
         <div className="App container">
             <div className="row">
@@ -155,11 +150,11 @@ class LoanApp extends React.Component {
                 </div>
                 <div className="col-md-6">
                     <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Loan</h5>
+                        <h5 className="modal-title" id="exampleModalLabel">Loan Info:</h5>
                     </div>
                     {showData ? (
                         <LoanData data={data}/>
-                    ): <span></span>}
+                    ): <span className="alert alert-light" role="alert"> Not available </span>}
                 </div>
             </div>
         </div>

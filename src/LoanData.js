@@ -19,6 +19,7 @@ class LoanApp extends React.Component {
                     <p>Status: {this.props.data.loan.approved ? 'Approved' : 'Denied'}</p>
                     <p>Reason: {this.props.data.loan.reason}</p>
                     <p>Amount Requested: {this.props.data.loan.amount}</p>
+                    { this.props.data.recommendation ? <p className="alert alert-warning" role="alert">Recommendation: {this.props.data.recommendation.text}</p>: <span></span>}
                 </div>
             </div>
         );
